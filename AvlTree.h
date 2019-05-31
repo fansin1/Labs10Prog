@@ -1,35 +1,48 @@
 //
 // Created by fansin on 24.05.2019.
 //
-
 #ifndef LABS2SEM_AVLTREE_H
 #define LABS2SEM_AVLTREE_H
 
 #include <iterator>
-#include "AvlIterator.h"
+
+template<class T>
+struct Node {
+    T key;
+    unsigned char height;
+    Node<T>* left = nullptr;
+    Node<T>* right = nullptr;
+    Node<T>* parent = nullptr;
+    explicit Node(const T& k) { key = k; left = right = 0; height = 1; }
+};
+
+template<class T>
+class AvlIterator: public std::iterator<std::input_iterator_tag, Node<T>>
+{
+public:
+    explicit AvlIterator(Node<T>* p);
+    AvlIterator();
+    bool operator!=(const AvlIterator<T>&) const;
+    bool operator==(const AvlIterator<T>&) const;
+    T operator*() const;
+    AvlIterator<T>& operator++();
+    AvlIterator<T> operator++(int);
+    AvlIterator<T>& operator--();
+    AvlIterator<T> operator--(int);
+private:
+    Node<T>* p;
+};
 
 template<class T, class Compare = std::less<T>>
 class AvlTree {
 public:
 
-    struct Node {
-        T key;
-        unsigned char height;
-        Node* left = nullptr;
-        Node* right = nullptr;
-        Node(const T& k) { key = k; left = right = 0; height = 1; }
-    };
-
-    typedef AvlIterator<Node> iterator;
-    typedef AvlIterator<Node> const_iterator;
+    typedef AvlIterator<T> iterator;
+    typedef const AvlIterator<T> const_iterator;
 
     AvlTree();
     AvlTree(const AvlTree&);
     AvlTree<T, Compare>& operator=(const AvlTree& avl);
-    Compare comp;
-
-    template<class InputIt>
-    void assign(InputIt first, InputIt last);
 
     iterator begin();
     const_iterator cbegin();
@@ -45,23 +58,36 @@ public:
     size_t size() const;
 
 private:
-    Node* insert(Node* p, const T& value, iterator& out);
+    Node<T>* insert(Node<T>* p, const T& value, iterator& out);
 
-    Node* root = nullptr;
+    Node<T>* _root = nullptr;
 
-    unsigned char height(Node* p);
+    size_t _size = 0;
 
-    int bFactor(Node* p);
+    unsigned char height(Node<T>* p);
 
-    void fixHeight(Node* p);
+    int bFactor(Node<T>* p);
 
-    Node* rotateRight(Node* p);
+    void fixHeight(Node<T>* p);
 
-    Node* rotateLeft(Node* q);
+    Node<T>* rotateRight(Node<T>* p);
 
-    Node* balance(Node* p);
+    Node<T>* rotateLeft(Node<T>* q);
+
+    Node<T>* balance(Node<T>* p);
+
+    Node<T>* findMin(Node<T>* p);
+
+    Node<T>* removeMin(Node<T>* p);
+
+    Node<T>* remove(Node<T>* p, const T k);
+
+    Compare _comp;
 
 };
+
+
+#include "AvlIterator.tpp"
 
 #include "AvlTree.tpp"
 
